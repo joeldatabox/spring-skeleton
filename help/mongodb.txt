@@ -1,0 +1,58 @@
+Após a instalação do MongoDB, se faz necessário ativar a segurança do banco de dados utilizando politica de acesso.
+
+01°-)Conecte-se primeiramente no mongo usando o seguinte comando
+    mongo --port PORTA_ATUAL_DE_EXECUCAO
+    Ex.:mongo --port 27017
+
+02°-)Selecione o banco "admin"
+    use admin
+
+03°-)Adicione o usuário "root"
+    db.createUser({ user: "root", pwd: "12root23@#", roles: [{ role: "userAdminAnyDatabase", db: "admin" }] })
+
+04°-)Teste a credencial desse novo usuário criado
+    db.auth("root", "12root23@#")
+
+05°-)Você deverá receber uma mensagem com a seguinte saída:
+    1
+
+06º-)É necessário ativa a verificação por senha, para isso edite o arquivo de configuração "mongod.conf"
+    sudo nano /etc/mongod.conf
+
+07º-)No arquivo de configuração deverá ter referente a segurança estando comentdata.
+    #security:
+
+08º-)Substitua o conteudo dessa linha pelo código abaixo:
+    security:
+      authorization: enabled
+
+09º-)Salve as alterações realizadas e reinicie o serviço do mongodb;
+    sudo service mongod restart
+
+10º-)Tenha certeza de que o mongo voltou a ser executado normalmente com o seguinte comando:
+    sudo service mongod status
+    obs.: Caso o sistema informe que o serviço está parado deve ter ocorrido algum problema durante os procedimentos
+
+11º-)Após realizar os procedimentos anteriores, adiocione permissão ao usuário criado para o mesmo acessar a base de dados desejada
+    #acessando o mongo
+    mongo --port 27017 -u "root" -p "12root23@#" --authenticationDatabase "admin"
+
+    #altere para base de dados desejada
+    use invistate
+
+    #adicione os privilegios de acesso a esta base. Não se esqueça de adicionar as bases de testes também
+    db.createUser({ user: "root", pwd: "12root23@#", roles: [{ role: "dbOwner", db: "skeleton" }] })
+
+    #você deverá receber uma mensagem como esta:
+    ##Successfully added user: {
+    ##	"user" : "root",
+    ##	"roles" : [
+    ##		{
+    ##			"role" : "dbOwner",
+    ##			"db" : "skeleton"
+    ##		}
+    ##	]
+    ##}
+
+12°-)Ativar o start do serviço juntamente com a inicialização do sistema
+    sudo systemctl enable mongod.service
